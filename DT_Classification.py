@@ -28,7 +28,7 @@ DATASET_CONFIGS = {
     },
     "4": {
         "name": "IoT_23_data",
-        "file": "IoT_23_Data.csv",
+        "file": "IoT_23_data.csv",
     },
 }
 
