@@ -42,6 +42,14 @@ DATA_DIR = f"{BASE_DIR}Datasets/original_Dataset"
 RESULTS_DIR = f"{BASE_DIR}Graphs"
 CLUSTERED_DATA_DIR = f"{BASE_DIR}Datasets/clustered_Dataset"
 
+# -----------------------------------------------------------------------------------------------------
+#                                        Post Lab Activity
+# Replace the metric and linkage in the variables below with the metrics and linkages
+# specified in your lab guide
+# -----------------------------------------------------------------------------------------------------
+chosen_metric = "manhattan"
+chosen_linkage = "average"
+
 
 def get_user_choice():
     """Prompts the user to select a dataset and returns the corresponding config."""
@@ -96,10 +104,34 @@ def main():
 
     # 3. Initial Visualization
     plt.figure(figsize=(8, 6), dpi=300)
-    sns.scatterplot(x=data[config["x_col"]], y=data[config["y_col"]], hue=true_labels)
+    # Create a mapping for original labels to match clustered colors
+    # Map original labels to the same colors used in clustered visualization
+    original_color_map = {}
+    unique_original_labels = true_labels.unique()
+
+    # Assign colors to match the clustered visualization scheme
+    if len(unique_original_labels) == 2:
+        # Use the same color scheme as clustered results
+        original_color_map = {
+            unique_original_labels[0]: "#56B4E9",  # Blue for first label
+            unique_original_labels[1]: "red",  # Red for second label
+        }
+    else:
+        # Fallback to default palette if more than 2 labels
+        colors = sns.color_palette("husl", len(unique_original_labels))
+        original_color_map = {
+            label: colors[i] for i, label in enumerate(unique_original_labels)
+        }
+
+    sns.scatterplot(
+        x=data[config["x_col"]],
+        y=data[config["y_col"]],
+        hue=true_labels,
+        palette=original_color_map,
+    )
     plt.title(f"Original Data: {dataset_name}")
     plt.legend(title="Original Labels")
-    plt.savefig(f"{results_path}/original.tiff", dpi=300)
+    plt.savefig(f"{results_path}/1.Original.tiff", dpi=300)
     plt.close()  # Close plot to free memory
 
     # 4. Perform Clustering
@@ -153,22 +185,8 @@ def main():
     plt.title(
         f"Silhouette Plot for {dataset_name}\nScore: {silhouette_avg:.3f}", fontsize=12
     )
-    plt.savefig(f"{results_path}/Silhouette.tiff", dpi=300)
+    plt.savefig(f"{results_path}/3.Silhouette.tiff", dpi=300)
     plt.close()
-
-    # --- Adjusted Rand Index ---
-    # The original script calculated this but never used it. Now we print it.
-    # Robustly handle non-numeric true labels before scoring.
-    cleaned_true_labels = (
-        pd.to_numeric(true_labels, errors="coerce").fillna(-1).astype(int)
-    )
-    if -1 in cleaned_true_labels.unique():
-        print(
-            "Warning: Non-numeric ground truth labels found and ignored in ARI calculation."
-        )
-
-    adjusted_rand = adjusted_rand_score(cleaned_true_labels, predicted_labels_numeric)
-    print(f"Adjusted Rand Index: {adjusted_rand:.4f}")
 
     # --- HAP Visualization ---
     plt.figure(figsize=(8, 6), dpi=300)
@@ -182,7 +200,7 @@ def main():
     )
     plt.title(f"{dataset_name} - Clustered Results")
     plt.legend(title="Cluster Type")
-    plt.savefig(f"{results_path}/Clustered.tiff", dpi=300)
+    plt.savefig(f"{results_path}/2.Clustered.tiff", dpi=300)
     plt.close()
 
     # 6. Save Clustered Data
