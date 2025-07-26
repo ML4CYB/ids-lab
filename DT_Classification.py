@@ -35,6 +35,10 @@ DATASET_CONFIGS = {
 BASE_DIR = "/home/ubuntu/ids-lab/"
 CLUSTERED_DATA_DIR = f"{BASE_DIR}Datasets/clustered_Dataset"
 
+# -----------------------------------------------------------------------------------------------------
+#                                   Post Lab Activity
+# Remove, add, and replace the existing seeds with the seeds listed in your lab manual
+# -----------------------------------------------------------------------------------------------------
 # Random seeds for reproducible results across multiple runs
 RANDOM_SEEDS = [10, 100, 1000, 2000, 3500]
 
