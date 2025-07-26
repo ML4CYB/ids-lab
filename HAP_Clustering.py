@@ -104,24 +104,29 @@ def main():
 
     # 3. Initial Visualization
     plt.figure(figsize=(8, 6), dpi=300)
-    # Create a mapping for original labels to match clustered colors
-    # Map original labels to the same colors used in clustered visualization
+    # Create a mapping for original labels to ensure consistent colors
+    # Anomaly labels = red, Normal labels = blue
     original_color_map = {}
     unique_original_labels = true_labels.unique()
 
-    # Assign colors to match the clustered visualization scheme
-    if len(unique_original_labels) == 2:
-        # Use the same color scheme as clustered results
-        original_color_map = {
-            unique_original_labels[0]: "#56B4E9",  # Blue for first label
-            unique_original_labels[1]: "red",  # Red for second label
-        }
-    else:
-        # Fallback to default palette if more than 2 labels
-        colors = sns.color_palette("husl", len(unique_original_labels))
-        original_color_map = {
-            label: colors[i] for i, label in enumerate(unique_original_labels)
-        }
+    # Map labels based on their semantic meaning, not order
+    for label in unique_original_labels:
+        label_lower = str(label).lower()
+        if "anomaly" in label_lower or "anomalous" in label_lower:
+            original_color_map[label] = "red"  # Red for anomaly
+        elif "normal" in label_lower or "benign" in label_lower:
+            original_color_map[label] = "#56B4E9"  # Blue for normal
+        else:
+            # For any other labels, assign colors based on position
+            # This handles edge cases like numeric labels or other naming conventions
+            remaining_labels = [
+                lbl for lbl in unique_original_labels if lbl not in original_color_map
+            ]
+            if len(remaining_labels) > 0:
+                # If we have unassigned labels, use a systematic approach
+                colors = ["#56B4E9", "red", "green", "orange", "purple"]
+                for i, remaining_label in enumerate(remaining_labels):
+                    original_color_map[remaining_label] = colors[i % len(colors)]
 
     sns.scatterplot(
         x=data[config["x_col"]],
